@@ -1,4 +1,14 @@
 import numpy as np
+from os import getcwd, mkdir, path
+import matplotlib.pyplot as plt
+
+# might add non-overwerite feature
+plot_path = f"{getcwd()}/Plots/"
+if not path.exists(plot_path):
+    mkdir(plot_path)
+    plot_name = "ExamplePlot_0.jpg"
+else:
+    pass
 
 # temporary store of variables
 freq = 5413.43
@@ -11,7 +21,7 @@ R = 5e-3
 R_error = 0.1e-3
 
 
-# functions
+# functions to propogate the errors
 def error_prop_sin(D, focal, D_error):
     return (
         ((D / 2) ** 2 + focal**2) ** (-0.5)
@@ -31,6 +41,7 @@ def error_prop_flow_speed(wave_length, freq, freq_error, D, D_error, focal):
     )
 
 
+# function for calculating the flowspeed
 def calculate_flow_speed(freq, wave_length, D, focal):
     return (freq * wave_length * np.sqrt((D / 2) ** 2 + focal**2)) / D
 
@@ -41,4 +52,17 @@ flow_speed_error = error_prop_flow_speed(
     wave_length, freq, freq_error, D, D_error, focal
 )
 
+# showing calculation
+font_size = 14
+title_size = 17
+
 print(f"Flow speed: {flow_speed}m/s\nFlow speed error: +/-{flow_speed_error}m/s")
+plt.errorbar(
+    R, flow_speed, yerr=flow_speed_error, xerr=R_error, linestyle="None", marker="o"
+)
+plt.ylabel("flow speed (m/s)")
+plt.xlabel("radial distance(m)")
+plt.title("flow speed vs radial distance")
+plt.tight_layout()
+plt.savefig(plot_path + plot_name)
+plt.show()
