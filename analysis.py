@@ -8,7 +8,7 @@ if not path.exists(plot_path):
     mkdir(plot_path)
     plot_name = "ExamplePlot_0.jpg"
 else:
-    pass
+    plot_name = "ExamplePlot_0.jpg"
 
 # temporary store of variables
 freq = 5413.43
@@ -63,6 +63,7 @@ plt.errorbar(
 plt.ylabel("flow speed (m/s)")
 plt.xlabel("radial distance(m)")
 plt.title("flow speed vs radial distance")
+plt.xticks(rotation=-45)
 plt.tight_layout()
 plt.savefig(plot_path + plot_name)
 plt.show()
