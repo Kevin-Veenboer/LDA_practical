@@ -56,16 +56,31 @@ def fit_func(R, C, Tube_radius):
     return C * (1 - (R**2 / Tube_radius**2))
 
 
+def correct_radial(DF):
+    radials = DF["R"]
+    freqs = DF["Freq"]
+    comb = [(R, V) for R, V in zip(radials, freqs)]
+    comb.sort(key=lambda x: x[1])
+    middle = comb[-1][0]
+    DF["R"] = DF["R"] - middle
+    return DF
+
+
 # LOAD CSV
-data_path = f"{getcwd()}/data_17_11.csv "
+data_path = f"{getcwd()}/data_temp.csv "
 data = pd.read_csv(data_path)
 
 wave_length = 632e-9
 
 A = 2.67e-3
-A_error = 2e-3
+A_error = 1e-3
 B = 10e-3
 B_error = 0.1e-3
+
+data["Freq_error"] = convert_to_sigma(data["FWHM"])
+
+# data = correct_radial(data)
+data["R"] = data["R"] - 11.0
 
 R = data["R"] * 1e-3
 R_error = data["R_error"] * 1e-3
@@ -85,7 +100,9 @@ SHOWING RESULTS
 
 model = Model(fit_func)
 
-results = model.fit(Flow_speeds, weights=Flow_speeds_error, R=R, C=1, Tube_radius=0.02)
+results = model.fit(
+    Flow_speeds, weights=Flow_speeds_error, R=R, C=0.01, Tube_radius=0.11
+)
 print(results.fit_report())
 
 plt.errorbar(
