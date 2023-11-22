@@ -12,16 +12,6 @@ if not path.exists(plot_path):
 else:
     plot_name = "ExamplePlot_0.jpg"
 
-# temporary store of variables
-freq = 5413.43
-freq_error = 338.845
-wave_length = 632.8e-9
-D = 3.6e-2
-D_error = 0.2e-2
-focal = 1.3e-1
-R = 5e-3
-R_error = 0.1e-3
-
 
 def calculate_sin(A, B):
     return A / np.sqrt(A**2 + B**2)
@@ -32,9 +22,13 @@ def calculate_sin(A, B):
 
 def error_prop_sin(A, A_error, B, B_error):
     return np.sqrt(
-        ((A**2 + B**2) ** (-0.5) * (1 - A**2 * (A**2 + B**2) ** -1 * A_error))
+        (
+            ((A**2 + B**2) * -0.5)
+            * (1 - (A**2) * (A**2 + B**2) ** -1)
+            * A_error
+        )
         ** 2
-        + (-A * B * (A**2 + B**2) ** (-3 / 2) * B_error)
+        + (-A * B * (A**2 + B**2) ** (-3 / 2) * B_error) ** 2
     )
 
 
@@ -80,25 +74,24 @@ Flow_speeds_error = error_prop_flow_speed(
 )
 
 
+"""
+SHOWING RESULTS
+"""
+
+
 model = Model(fit_func)
 
-results = model.fit(Flow_speeds, R=R, C=1, Tube_radius=0.02)
+results = model.fit(Flow_speeds, weights=Flow_speeds_error, R=R, C=1, Tube_radius=0.02)
 print(results.fit_report())
 
-plt.plot(R, Flow_speeds, "o")
+plt.errorbar(
+    R, Flow_speeds, yerr=Flow_speeds_error, xerr=R_error, linestyle="None", marker="o"
+)
 plt.plot(R, results.best_fit, "-", label="best fit")
 plt.legend()
+plt.ylabel("flow speed (m/s)")
+plt.xlabel("radial distance(m)")
+plt.title("flow speed vs radial distance")
+plt.xticks(rotation=-45)
+plt.tight_layout()
 plt.show()
-
-
-# #printing
-# plt.errorbar(
-#     R, Flow_speeds, yerr=Flow_speeds_error, xerr=R_error, linestyle="None", marker="o"
-# )
-# # plt.errorbar(R, Flow_speeds, xerr=R_error, linestyle="None", marker="o")
-# plt.ylabel("flow speed (m/s)")
-# plt.xlabel("radial distance(m)")
-# plt.title("flow speed vs radial distance")
-# plt.xticks(rotation=-45)
-# plt.tight_layout()
-# plt.show()
