@@ -1,6 +1,8 @@
 import numpy as np
 from os import getcwd, mkdir, path
 import matplotlib.pyplot as plt
+import pandas as pd
+from lmfit import Model
 
 # might add non-overwerite feature
 plot_path = f"{getcwd()}/Plots/"
@@ -52,24 +54,51 @@ def calculate_flow_speed(freq, wave_length, A, B):
     return (freq * wave_length) / (2 * calculate_sin(A, B))
 
 
-# loose example calculation
-flow_speed = calculate_flow_speed(freq, wave_length, D, focal)
-flow_speed_error = error_prop_flow_speed(
-    wave_length, freq, freq_error, D, D_error, focal
+def fit_func(R, C, Tube_radius):
+    return C * (1 - (R**2 / Tube_radius**2))
+
+
+# LOAD CSV
+data_path = f"{getcwd()}/data_17_11.csv "
+data = pd.read_csv(data_path)
+
+wave_length = 632e-9
+
+A = 2.67e-3
+A_error = 2e-3
+B = 10e-3
+B_error = 0.1e-3
+
+R = data["R"] * 1e-3
+R_error = data["R_error"] * 1e-3
+freq = data["Freq"]
+freq_error = data["Freq_error"]
+
+Flow_speeds = calculate_flow_speed(freq, wave_length, A, B)
+Flow_speeds_error = error_prop_flow_speed(
+    wave_length, freq, freq_error, A, A_error, B, B_error
 )
 
-# showing calculation
-font_size = 14
-title_size = 17
 
-# print(f"Flow speed: {flow_speed}m/s\nFlow speed error: +/-{flow_speed_error}m/s")
-plt.errorbar(
-    R, flow_speed, yerr=flow_speed_error, xerr=R_error, linestyle="None", marker="o"
-)
-plt.ylabel("flow speed (m/s)")
-plt.xlabel("radial distance(m)")
-plt.title("flow speed vs radial distance")
-plt.xticks(rotation=-45)
-plt.tight_layout()
-plt.savefig(plot_path + plot_name)
+model = Model(fit_func)
+
+results = model.fit(Flow_speeds, R=R, C=1, Tube_radius=0.02)
+print(results.fit_report())
+
+plt.plot(R, Flow_speeds, "o")
+plt.plot(R, results.best_fit, "-", label="best fit")
+plt.legend()
 plt.show()
+
+
+# #printing
+# plt.errorbar(
+#     R, Flow_speeds, yerr=Flow_speeds_error, xerr=R_error, linestyle="None", marker="o"
+# )
+# # plt.errorbar(R, Flow_speeds, xerr=R_error, linestyle="None", marker="o")
+# plt.ylabel("flow speed (m/s)")
+# plt.xlabel("radial distance(m)")
+# plt.title("flow speed vs radial distance")
+# plt.xticks(rotation=-45)
+# plt.tight_layout()
+# plt.show()
