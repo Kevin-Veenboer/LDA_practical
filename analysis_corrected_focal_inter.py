@@ -52,8 +52,12 @@ def calculate_flow_speed(freq, wave_length, A, B):
     return (freq * wave_length) / (2 * calculate_sin(A, B))
 
 
-def fit_func(R, C, Tube_radius):
-    return C * (1 - (R**2 / Tube_radius**2))
+def fit_func(R, C, Middle, Tube_radius):
+    return C * (1 - ((R - Middle) ** 2 / Tube_radius**2))
+
+
+def test_func(R, C=0.008, Middle=0.08, Tube_radius=0.126):
+    return C * (1 - ((R - Middle) ** 2 / Tube_radius**2))
 
 
 def correct_radial(DF):
@@ -79,9 +83,6 @@ B_error = 0.1e-3
 
 data["Freq_error"] = convert_to_sigma(data["FWHM"])
 
-# data = correct_radial(data)
-data["R"] = data["R"] - 11.0
-
 R = data["R"] * 1e-3
 R_error = data["R_error"] * 1e-3
 freq = data["Freq"]
@@ -98,21 +99,26 @@ SHOWING RESULTS
 """
 
 
-model = Model(fit_func)
+# model = Model(fit_func)
+# params = model.make_params()
+# params["C"].set(value=0.01)
+# params["Middle"].set(value=0.11, min=0.08, max=0.15)
+# params["Tube_radius"].set(value=0.11)
 
-results = model.fit(
-    Flow_speeds, weights=Flow_speeds_error, R=R, C=0.01, Tube_radius=0.11
-)
-print(results.fit_report())
+# results = model.fit(Flow_speeds, weights=Flow_speeds_error, R=R, params=params)
+# print(results.fit_report())
 
-plt.errorbar(
-    R, Flow_speeds, yerr=Flow_speeds_error, xerr=R_error, linestyle="None", marker="o"
-)
-plt.plot(R, results.best_fit, "-", label="best fit")
-plt.legend()
-plt.ylabel("flow speed (m/s)")
-plt.xlabel("radial distance(m)")
-plt.title("flow speed vs radial distance")
-plt.xticks(rotation=-45)
-plt.tight_layout()
+# plt.errorbar(
+#     R, Flow_speeds, yerr=Flow_speeds_error, xerr=R_error, linestyle="None", marker="o"
+# )
+# plt.plot(R, results.best_fit, "-", label="best fit")
+# plt.legend()
+# plt.ylabel("flow speed (m/s)")
+# plt.xlabel("radial distance(m)")
+# plt.title("flow speed vs radial distance")
+# plt.xticks(rotation=-45)
+# plt.tight_layout()
+# plt.show()
+
+plt.plot(R, test_func(R))
 plt.show()
