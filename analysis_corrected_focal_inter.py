@@ -107,16 +107,21 @@ params["Tube_radius"].set(value=0.011)
 
 results = model.fit(Flow_speeds, weights=Flow_speeds_error, R=R, params=params)
 print(results.fit_report())
+with open(f"{getcwd()}/Fit_Results/last_fit_report.txt", "w") as file:
+    print(results.fit_report(), file=file)
 
 plt.errorbar(
     R, Flow_speeds, yerr=Flow_speeds_error, xerr=R_error, linestyle="None", marker="o"
 )
 plt.plot(R, results.best_fit, "-", label="best fit")
 plt.legend()
-# plt.xlim()
+plt.xlim(0, 0.02)
+plt.ylim(0, 0.01)
 plt.ylabel("flow speed (m/s)")
 plt.xlabel("radial distance(m)")
 plt.title("flow speed vs radial distance")
 plt.xticks(rotation=-45)
 plt.tight_layout()
+plt.savefig(f"{getcwd()}/Fit_Results/last_fit_plot.svg")
+plt.savefig(f"{getcwd()}/Fit_Results/last_fit_plot.jpg")
 plt.show()
