@@ -99,26 +99,24 @@ SHOWING RESULTS
 """
 
 
-# model = Model(fit_func)
-# params = model.make_params()
-# params["C"].set(value=0.01)
-# params["Middle"].set(value=0.11, min=0.08, max=0.15)
-# params["Tube_radius"].set(value=0.11)
+model = Model(fit_func)
+params = model.make_params()
+params["C"].set(value=0.001)
+params["Middle"].set(value=0.011, min=0.008, max=0.015)
+params["Tube_radius"].set(value=0.011)
 
-# results = model.fit(Flow_speeds, weights=Flow_speeds_error, R=R, params=params)
-# print(results.fit_report())
+results = model.fit(Flow_speeds, weights=Flow_speeds_error, R=R, params=params)
+print(results.fit_report())
 
-# plt.errorbar(
-#     R, Flow_speeds, yerr=Flow_speeds_error, xerr=R_error, linestyle="None", marker="o"
-# )
-# plt.plot(R, results.best_fit, "-", label="best fit")
-# plt.legend()
-# plt.ylabel("flow speed (m/s)")
-# plt.xlabel("radial distance(m)")
-# plt.title("flow speed vs radial distance")
-# plt.xticks(rotation=-45)
-# plt.tight_layout()
-# plt.show()
-
-plt.plot(R, test_func(R))
+plt.errorbar(
+    R, Flow_speeds, yerr=Flow_speeds_error, xerr=R_error, linestyle="None", marker="o"
+)
+plt.plot(R, results.best_fit, "-", label="best fit")
+plt.legend()
+# plt.xlim()
+plt.ylabel("flow speed (m/s)")
+plt.xlabel("radial distance(m)")
+plt.title("flow speed vs radial distance")
+plt.xticks(rotation=-45)
+plt.tight_layout()
 plt.show()
