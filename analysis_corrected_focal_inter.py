@@ -71,7 +71,7 @@ def correct_radial(DF):
 
 
 # LOAD CSV
-data_path = f"{getcwd()}/data_17_11.csv "
+data_path = f"{getcwd()}/data_temp.csv "
 data = pd.read_csv(data_path)
 
 wave_length = 632e-9
@@ -103,7 +103,7 @@ model = Model(fit_func)
 params = model.make_params()
 params["C"].set(value=0.001)
 params["Middle"].set(value=0.035, min=0.001, max=0.01)
-params["Tube_radius"].set(value=0.011)
+params["Tube_radius"].set(value=0.011, min=0.001, max=0.02)
 
 results = model.fit(Flow_speeds, weights=Flow_speeds_error, R=R, params=params)
 print(results.fit_report())
@@ -115,7 +115,7 @@ plt.errorbar(
 )
 plt.plot(R, results.best_fit, "-", label="best fit")
 plt.legend()
-plt.xlim(0, 0.0125)
+plt.xlim(0, 0.020)
 plt.ylim(0, 0.01)
 plt.ylabel("flow speed (m/s)")
 plt.xlabel("radial distance(m)")
