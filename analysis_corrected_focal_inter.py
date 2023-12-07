@@ -71,8 +71,9 @@ def correct_radial(DF):
 
 
 # LOAD CSV
-data_path = f"{getcwd()}/data_temp.csv "
-data = pd.read_csv(data_path)
+data_path = f"{getcwd()}/DataExtensive_6_12/data_24.csv"
+file_ID = "6_12_24"
+data = pd.read_csv(data_path, sep=";")
 
 wave_length = 632e-9
 
@@ -102,12 +103,12 @@ SHOWING RESULTS
 model = Model(fit_func)
 params = model.make_params()
 params["C"].set(value=0.001)
-params["Middle"].set(value=0.035, min=0.001, max=0.01)
+params["Middle"].set(value=0.013, min=0.008, max=0.018)
 params["Tube_radius"].set(value=0.011, min=0.001, max=0.02)
 
 results = model.fit(Flow_speeds, weights=Flow_speeds_error, R=R, params=params)
 print(results.fit_report())
-with open(f"{getcwd()}/Fit_Results/last_fit_report.txt", "w") as file:
+with open(f"{getcwd()}/Fit_Results/{file_ID}_fit_report.txt", "w") as file:
     print(results.fit_report(), file=file)
 
 plt.errorbar(
@@ -115,13 +116,13 @@ plt.errorbar(
 )
 plt.plot(R, results.best_fit, "-", label="best fit")
 plt.legend()
-plt.xlim(0, 0.020)
+plt.xlim(0.006, 0.020)
 plt.ylim(0, 0.01)
 plt.ylabel("flow speed (m/s)")
 plt.xlabel("radial distance(m)")
 plt.title("flow speed vs radial distance")
 plt.xticks(rotation=-45)
 plt.tight_layout()
-plt.savefig(f"{getcwd()}/Fit_Results/last_fit_plot.svg")
-plt.savefig(f"{getcwd()}/Fit_Results/last_fit_plot.jpg")
+plt.savefig(f"{getcwd()}/Fit_Results/{file_ID}_fit_plot.svg")
+plt.savefig(f"{getcwd()}/Fit_Results/{file_ID}_fit_plot.jpg")
 plt.show()
