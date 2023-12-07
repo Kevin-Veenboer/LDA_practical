@@ -71,8 +71,8 @@ def correct_radial(DF):
 
 
 # LOAD CSV
-data_path = f"{getcwd()}/DataExtensive_6_12/data_24.csv"
-file_ID = "6_12_24"
+data_path = f"{getcwd()}/DataExtensive_6_12/data_18.csv"
+file_ID = "6_12_18"
 data = pd.read_csv(data_path, sep=";")
 
 wave_length = 632e-9
