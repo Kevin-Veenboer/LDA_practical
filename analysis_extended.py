@@ -71,14 +71,14 @@ B_error = 0.1e-3
 
 
 plot_colors = ["gray", "brown", "cyan", "purple", "blue", "red", "green", "orange"]
-# IDs_to_plot = ["12", "14", "16"]
-# C_to_skip = [4, 6]
+IDs_to_plot = ["4", "6", "8", "10"]
+C_to_skip = [4, 6]
 
-IDs_to_plot = ["4", "8", "12", "16", "18", "20", "22", "24"]
-C_to_skip = []
+# IDs_to_plot = ["4", "8", "12", "16", "18", "20", "22", "24"]
+# C_to_skip = []
 
 data_dict = {}
-data_path = f"{getcwd()}/DataExtensive_6_12/"
+data_path = f"{getcwd()}/DataExtensive_8_12/"
 save_path = f"{getcwd()}/ExtendedResults/"
 
 for data_file in listdir(data_path):
@@ -136,7 +136,7 @@ for data_file in listdir(data_path):
 
 plt.legend(loc="upper right")
 plt.xlim(0.006, 0.022)
-plt.ylim(0.002, 0.01)
+plt.ylim(0.000, 0.016)
 plt.ylabel("flow speed (m/s)")
 plt.xlabel("radial distance(m)")
 plt.title("flow speed vs radial distance")
