@@ -1,0 +1,20 @@
+[[Model]]
+    Model(fit_func)
+[[Fit Statistics]]
+    # fitting method   = leastsq
+    # function evals   = 84
+    # data points      = 10
+    # variables        = 3
+    chi-square         = 2.6858e-12
+    reduced chi-square = 3.8368e-13
+    Akaike info crit   = -283.456308
+    Bayesian info crit = -282.548553
+    R-squared          = 0.99999998
+[[Variables]]
+    C:            0.01123462 +/- 0.00255384 (22.73%) (init = 0.001)
+    Middle:       0.01800000 +/- 0.01470888 (81.72%) (init = 0.013)
+    Tube_radius:  0.01172230 +/- 0.00759093 (64.76%) (init = 0.011)
+[[Correlations]] (unreported correlations are < 0.100)
+    C(Middle, Tube_radius) = -0.9786
+    C(C, Middle)           = -0.9473
+    C(C, Tube_radius)      = +0.8892

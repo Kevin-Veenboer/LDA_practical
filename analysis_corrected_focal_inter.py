@@ -71,8 +71,8 @@ def correct_radial(DF):
 
 
 # LOAD CSV
-data_path = f"{getcwd()}/DataExtensive_6_12/data_18.csv"
-file_ID = "6_12_18"
+data_path = f"{getcwd()}/DataExtensive_8_12/data_16.csv"
+file_ID = "8_12_16"
 data = pd.read_csv(data_path, sep=";")
 
 wave_length = 632e-9
@@ -117,7 +117,7 @@ plt.errorbar(
 plt.plot(R, results.best_fit, "-", label="best fit")
 plt.legend()
 plt.xlim(0.006, 0.020)
-plt.ylim(0, 0.01)
+plt.ylim(0, 0.02)
 plt.ylabel("flow speed (m/s)")
 plt.xlabel("radial distance(m)")
 plt.title("flow speed vs radial distance")
