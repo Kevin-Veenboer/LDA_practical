@@ -4,14 +4,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from lmfit import Model
 
-# might add non-overwerite feature
-plot_path = f"{getcwd()}/Plots/"
-if not path.exists(plot_path):
-    mkdir(plot_path)
-    plot_name = "ExamplePlot_0.jpg"
-else:
-    plot_name = "ExamplePlot_0.jpg"
-
 
 def convert_to_sigma(FWHM):
     return FWHM / (2 * np.sqrt(2 * np.log(2)))
