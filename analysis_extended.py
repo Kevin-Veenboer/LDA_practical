@@ -14,8 +14,6 @@ def calculate_sin(A, B):
 
 
 # functions to propogate the errors
-
-
 def error_prop_sin(A, A_error, B, B_error):
     return np.sqrt(
         (
@@ -48,20 +46,6 @@ def fit_func(R, C, Middle, Tube_radius):
     return C * (1 - ((R - Middle) ** 2 / Tube_radius**2))
 
 
-def test_func(R, C=0.008, Middle=0.08, Tube_radius=0.126):
-    return C * (1 - ((R - Middle) ** 2 / Tube_radius**2))
-
-
-def correct_radial(DF):
-    radials = DF["R"]
-    freqs = DF["Freq"]
-    comb = [(R, V) for R, V in zip(radials, freqs)]
-    comb.sort(key=lambda x: x[1])
-    middle = comb[-1][0]
-    DF["R"] = DF["R"] - middle
-    return DF
-
-
 # General variables
 wave_length = 632e-9
 A = 2.67e-3
@@ -71,14 +55,17 @@ B_error = 0.1e-3
 
 
 plot_colors = ["gray", "brown", "cyan", "purple", "blue", "red", "green", "orange"]
-IDs_to_plot = ["4", "6", "8", "10"]
-C_to_skip = [4, 6]
 
-# IDs_to_plot = ["4", "8", "12", "16", "18", "20", "22", "24"]
-# C_to_skip = []
+## UNCOMMENT FOR FIRST SET OF DATA (edit data path also)
+# IDs_to_plot = ["12", "14", "16"]
+# C_to_skip = [4, 6]
+
+## UNCOMMENT FOR SECOND SET OF DATA (edit data path also)
+IDs_to_plot = ["4", "8", "12", "16", "18", "20", "22", "24"]
+C_to_skip = []
 
 data_dict = {}
-data_path = f"{getcwd()}/DataExtensive_8_12/"
+data_path = f"{getcwd()}/DataExtensive_6_12/"
 save_path = f"{getcwd()}/ExtendedResults/"
 
 for data_file in listdir(data_path):
@@ -136,10 +123,10 @@ for data_file in listdir(data_path):
 
 plt.legend(loc="upper right")
 plt.xlim(0.006, 0.022)
-plt.ylim(0.000, 0.016)
+plt.ylim(0.002, 0.010)
 plt.ylabel("flow speed (m/s)")
 plt.xlabel("radial distance(m)")
-plt.title("flow speed vs radial distance")
+# plt.title("flow speed vs radial distance")
 plt.xticks(rotation=-45)
 plt.tight_layout()
 plt.savefig(f"{save_path}MultiPlot.jpg", dpi=300)
@@ -166,9 +153,9 @@ for element in C_data:
 plt.errorbar(lengths, C_values, yerr=C_errors, linestyle="None", marker="o")
 plt.ylabel("Maximum of fitted flow speed (m/s)")
 plt.xlabel("Distance from tube entrance (cm)")
-plt.title("maximum flow speed vs entrance distance")
+# plt.title("maximum flow speed vs entrance distance")
 plt.xlim(0, 25)
-plt.ylim(0.0055, 0.0145)
+plt.ylim(0.005, 0.01)
 plt.tight_layout()
 plt.savefig(f"{save_path}C_plot.jpg", dpi=300)
 plt.savefig(f"{save_path}C_plot.svg")
