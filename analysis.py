@@ -1,69 +1,120 @@
 import numpy as np
 from os import getcwd, mkdir, path
 import matplotlib.pyplot as plt
+import pandas as pd
+from lmfit import Model
 
-# might add non-overwerite feature
-plot_path = f"{getcwd()}/Plots/"
-if not path.exists(plot_path):
-    mkdir(plot_path)
-    plot_name = "ExamplePlot_0.jpg"
-else:
-    plot_name = "ExamplePlot_0.jpg"
 
-# temporary store of variables
-freq = 5413.43
-freq_error = 338.845
-wave_length = 632.8e-9
-D = 3.6e-2
-D_error = 0.2e-2
-focal = 1.3e-1
-R = 5e-3
-R_error = 0.1e-3
+def convert_to_sigma(FWHM):
+    return FWHM / (2 * np.sqrt(2 * np.log(2)))
+
+
+def calculate_sin(A, B):
+    return A / np.sqrt(A**2 + B**2)
 
 
 # functions to propogate the errors
-def error_prop_sin(D, focal, D_error):
-    return (
-        ((D / 2) ** 2 + focal**2) ** (-0.5)
-        * (1 - ((D / 2) ** 2 + focal**2) ** -1)
-        * D_error
+
+
+def error_prop_sin(A, A_error, B, B_error):
+    return np.sqrt(
+        (
+            ((A**2 + B**2) * -0.5)
+            * (1 - (A**2) * (A**2 + B**2) ** -1)
+            * A_error
+        )
+        ** 2
+        + (-A * B * (A**2 + B**2) ** (-3 / 2) * B_error) ** 2
     )
 
 
-def error_prop_flow_speed(wave_length, freq, freq_error, D, D_error, focal):
+def error_prop_flow_speed(wave_length, freq, freq_error, A, A_error, B, B_error):
     return np.sqrt(
-        ((freq_error * wave_length * np.sqrt((D / 2) ** 2 + (focal) ** 2)) / (D)) ** 2
+        ((wave_length * freq_error) / (2 * calculate_sin(A, B))) ** 2
         + (
-            ((-freq * wave_length * 2 * ((D / 2) ** 2 + (focal) ** 2)) / (D) ** 2)
-            * error_prop_sin(D, focal, D_error)
+            (-freq * wave_length * error_prop_sin(A, A_error, B, B_error))
+            / (2 * calculate_sin(A, B) ** 2)
         )
         ** 2
     )
 
 
 # function for calculating the flowspeed
-def calculate_flow_speed(freq, wave_length, D, focal):
-    return (freq * wave_length * np.sqrt((D / 2) ** 2 + focal**2)) / D
+def calculate_flow_speed(freq, wave_length, A, B):
+    return (freq * wave_length) / (2 * calculate_sin(A, B))
 
 
-# loose example calculation
-flow_speed = calculate_flow_speed(freq, wave_length, D, focal)
-flow_speed_error = error_prop_flow_speed(
-    wave_length, freq, freq_error, D, D_error, focal
+def fit_func(R, C, Middle, Tube_radius):
+    return C * (1 - ((R - Middle) ** 2 / Tube_radius**2))
+
+
+def test_func(R, C=0.008, Middle=0.08, Tube_radius=0.126):
+    return C * (1 - ((R - Middle) ** 2 / Tube_radius**2))
+
+
+def correct_radial(DF):
+    radials = DF["R"]
+    freqs = DF["Freq"]
+    comb = [(R, V) for R, V in zip(radials, freqs)]
+    comb.sort(key=lambda x: x[1])
+    middle = comb[-1][0]
+    DF["R"] = DF["R"] - middle
+    return DF
+
+
+# LOAD CSV
+data_path = f"{getcwd()}/DataExtensive_8_12/data_16.csv"
+file_ID = "8_12_16"
+data = pd.read_csv(data_path, sep=";")
+
+wave_length = 632e-9
+
+A = 2.67e-3
+A_error = 1e-3
+B = 10e-3
+B_error = 0.1e-3
+
+data["Freq_error"] = convert_to_sigma(data["FWHM"])
+
+R = data["R"] * 1e-3
+R_error = data["R_error"] * 1e-3
+freq = data["Freq"]
+freq_error = data["Freq_error"]
+
+Flow_speeds = calculate_flow_speed(freq, wave_length, A, B)
+Flow_speeds_error = error_prop_flow_speed(
+    wave_length, freq, freq_error, A, A_error, B, B_error
 )
 
-# showing calculation
-font_size = 14
-title_size = 17
 
-print(f"Flow speed: {flow_speed}m/s\nFlow speed error: +/-{flow_speed_error}m/s")
+"""
+SHOWING RESULTS
+"""
+
+
+model = Model(fit_func)
+params = model.make_params()
+params["C"].set(value=0.001)
+params["Middle"].set(value=0.013, min=0.008, max=0.018)
+params["Tube_radius"].set(value=0.011, min=0.001, max=0.02)
+
+results = model.fit(Flow_speeds, weights=Flow_speeds_error, R=R, params=params)
+print(results.fit_report())
+with open(f"{getcwd()}/Fit_Results/{file_ID}_fit_report.txt", "w") as file:
+    print(results.fit_report(), file=file)
+
 plt.errorbar(
-    R, flow_speed, yerr=flow_speed_error, xerr=R_error, linestyle="None", marker="o"
+    R, Flow_speeds, yerr=Flow_speeds_error, xerr=R_error, linestyle="None", marker="o"
 )
+plt.plot(R, results.best_fit, "-", label="best fit")
+plt.legend()
+plt.xlim(0.006, 0.020)
+plt.ylim(0, 0.02)
 plt.ylabel("flow speed (m/s)")
 plt.xlabel("radial distance(m)")
 plt.title("flow speed vs radial distance")
 plt.xticks(rotation=-45)
 plt.tight_layout()
-plt.savefig(plot_path + plot_name)
+plt.savefig(f"{getcwd()}/Fit_Results/{file_ID}_fit_plot.svg")
+plt.savefig(f"{getcwd()}/Fit_Results/{file_ID}_fit_plot.jpg")
 plt.show()
